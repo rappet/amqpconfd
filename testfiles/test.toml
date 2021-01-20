@@ -5,13 +5,13 @@
 # applies the configuration
 
 # source path of the template to apply
-template_path = "/etc/amqpconf.d/template.j2"
+template_path = "testfiles/test.j2"
 
 # destination path of the templated file
-output_file = "/etc/amqpconf.d/output.txt"
+output_file = "testfiles/test.out"
 
 # command to run after templating had been run
-apply_command = "cat /etc/amqpconf.d/output.txt"
+apply_command = "cat testfiles/test.out"
 
 # AMQP broker URL
 amqp_url = "amqp://127.0.0.1:5672/%2f"
