@@ -5,16 +5,16 @@ use clap::Clap;
 pub struct Opts {
     #[clap(short, long, env, default_value = "/etc/amqpconfd.toml")]
     #[clap(about = "Path to configuration file")]
-    config: String,
+    pub config: String,
     #[clap(short, long, parse(from_occurrences))]
     #[clap(about = "Level of verbosity (multiple)")]
-    verbose: i32,
+    pub verbose: i32,
 }
 
 impl Opts {
     pub fn init_logger(&self) {
         match self.verbose {
-            0 => {},
+            0 => {}
             1 => std::env::set_var("RUST_LOG", "amqpconfd=debug"),
             _ => std::env::set_var("RUST_LOG", "amqpconfd=trace"),
         }

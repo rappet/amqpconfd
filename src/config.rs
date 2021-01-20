@@ -1,18 +1,28 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use std::borrow::Cow;
+use std::fs::File;
+use std::io::Read;
+use std::path::Path;
 
-#[derive(Debug, Clone)]
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config<'a> {
     /// source path of the template to apply
-    template_path: Cow<'a, str>,
+    pub template_path: Cow<'a, str>,
     /// destination path of the templated file
-    output_file: Cow<'a, str>,
+    pub output_file: Cow<'a, str>,
     /// command to run after templating had been run
-    apply_command: Option<Cow<'a, str>>,
+    pub apply_command: Option<Cow<'a, str>>,
     /// AMQP broker URL
-    amqp_url: Cow<'a, str>,
+    pub amqp_url: Cow<'a, str>,
+}
+
+impl Config<'static> {
+    pub fn open(path: impl AsRef<Path>) -> std::io::Result<Config<'static>> {
+        let mut content = Vec::new();
+        File::open(path)?.read_to_end(&mut content)?;
+        Ok(toml::from_slice(content.as_slice())?)
+    }
 }
 
 impl Default for Config<'static> {
