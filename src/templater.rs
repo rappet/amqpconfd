@@ -1,11 +1,12 @@
 use crate::config::Config;
-use std::path::PathBuf;
-use tera::{Tera, Context};
+use anyhow::Context;
+use log::warn;
 use serde_json::Value;
+use std::path::PathBuf;
+use tera::Tera;
 use tokio::fs::File;
 use tokio::prelude::*;
 use tokio::process::Command;
-use log::warn;
 
 #[derive(Debug)]
 pub struct Templater {
@@ -15,11 +16,7 @@ pub struct Templater {
 }
 
 impl Templater {
-    pub fn new(
-        template_path: String,
-        output_file: PathBuf,
-        command: Option<String>,
-    ) -> Templater {
+    pub fn new(template_path: String, output_file: PathBuf, command: Option<String>) -> Templater {
         Templater {
             template_path,
             output_file,
@@ -38,17 +35,33 @@ impl Templater {
     pub async fn apply_json(&self, json: &Value) -> anyhow::Result<()> {
         // read template
         let mut template_raw = Vec::new();
-        File::open(&self.template_path).await?.read_to_end(&mut template_raw).await?;
-        let template = String::from_utf8(template_raw)?;
+        File::open(&self.template_path)
+            .await?
+            .read_to_end(&mut template_raw)
+            .await
+            .context("Failed reading template file")?;
+        let template =
+            String::from_utf8(template_raw).context("Template file is not valid UTF-8")?;
 
         // Templating
-        let context = Context::from_value(json.clone())?;
-        let out = Tera::one_off(&template, &context, false)?;
-        File::create(&self.output_file).await?.write_all(out.as_bytes()).await?;
+        let context = tera::Context::from_value(json.clone())?;
+        let out = Tera::one_off(&template, &context, false)
+            .context("Template file is not valid Jinja2")?;
+        File::create(&self.output_file)
+            .await?
+            .write_all(out.as_bytes())
+            .await
+            .context("Could not write the templated output")?;
 
         // Execute command
         if let Some(command) = &self.command {
-            let status = Command::new("sh").arg("-c").arg(command).spawn()?.await?;
+            let status = Command::new("sh")
+                .arg("-c")
+                .arg(command)
+                .spawn()
+                .context("Could not open the specified command")?
+                .await
+                .context("Specified command failed")?;
             if !status.success() {
                 warn!("called process did not finish successfully");
             }

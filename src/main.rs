@@ -8,10 +8,10 @@ extern crate tera;
 extern crate tokio;
 extern crate toml;
 
+use anyhow::Context;
 use clap::Clap;
 use log::{error, info};
 use serde_json::json;
-use anyhow::Context;
 
 use crate::config::Config;
 use crate::opts::Opts;
@@ -29,9 +29,11 @@ async fn main() -> anyhow::Result<()> {
     let config = Config::open(&opts.config).context("Failed to read the configuration")?;
     let templater = Templater::from_config(&config);
 
-    templater.apply_json(&json!({
-        "foo": "bar"
-    })).await?;
+    templater
+        .apply_json(&json!({
+            "foo": "bar"
+        }))
+        .await?;
 
     info!("starting deamon");
 
