@@ -5,7 +5,8 @@ use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Serialize, Deserialize)]
 pub struct Config<'a> {
     /// source path of the template to apply
     pub template_path: Cow<'a, str>,
