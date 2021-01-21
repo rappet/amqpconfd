@@ -5,7 +5,7 @@ use serde_json::Value;
 use std::path::PathBuf;
 use tera::Tera;
 use tokio::fs::File;
-use tokio::prelude::*;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::process::Command;
 
 #[derive(Debug)]
@@ -60,6 +60,7 @@ impl Templater {
                 .arg(command)
                 .spawn()
                 .context("Could not open the specified command")?
+                .wait()
                 .await
                 .context("Specified command failed")?;
             if !status.success() {
