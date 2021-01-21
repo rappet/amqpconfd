@@ -36,13 +36,12 @@ async fn main() -> anyhow::Result<()> {
 
     info!("starting deamon");
 
-    let mut consumer = ConfigChangeConsumer::connect(config.amqp_url.as_ref()).await?;
+    let mut consumer =
+        ConfigChangeConsumer::connect(config.amqp_url.as_ref(), config.amqp_queue.as_ref()).await?;
     consumer
         .consume(|value| {
             let templater = templater.clone();
-            async move {
-                templater.apply_json(&value).await
-            }
+            async move { templater.apply_json(&value).await }
         })
         .await?;
 

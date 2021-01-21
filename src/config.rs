@@ -15,6 +15,8 @@ pub struct Config<'a> {
     pub apply_command: Option<Cow<'a, str>>,
     /// AMQP broker URL
     pub amqp_url: Cow<'a, str>,
+    /// AMQP queue name to listen to
+    pub amqp_queue: Cow<'a, str>,
 }
 
 impl Config<'static> {
@@ -32,6 +34,7 @@ impl Default for Config<'static> {
             output_file: "/etc/amqpconf.d/output.txt".into(),
             apply_command: Some("cat /etc/amqpconf.d/output.txt".into()),
             amqp_url: "amqp://127.0.0.1:5672/%2f".into(),
+            amqp_queue: "hello".into(),
         }
     }
 }

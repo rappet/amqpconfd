@@ -15,3 +15,6 @@ apply_command = "cat testfiles/test.out"
 
 # AMQP broker URL
 amqp_url = "amqp://127.0.0.1:5672/%2f"
+
+# AMQP queue name
+amqp_queue = "foobar"
