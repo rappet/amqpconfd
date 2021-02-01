@@ -12,6 +12,7 @@ use tokio::process::Command;
 pub struct Templater {
     template_path: String,
     output_file: PathBuf,
+    /// command to run after appling config
     command: Option<String>,
 }
 

@@ -9,9 +9,13 @@ use std::future::Future;
 use tokio_amqp::LapinTokioExt;
 
 pub struct ConfigChangeConsumer {
+    /// AQMP connection
     connection: Connection,
+    /// AQMP channel
     channel: Channel,
+    /// AQMP queue
     queue: Queue,
+    /// AQMP consumer
     consumer: Consumer,
 }
 
