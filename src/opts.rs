@@ -14,7 +14,9 @@ pub struct Opts {
 impl Opts {
     pub fn init_logger(&self) {
         match self.verbose {
-            0 => {}
+            0 => if std::env::var("RUST_LOG").is_err() {
+                std::env::set_var("RUST_LOG", "amqpconfd=warn");
+            },
             1 => std::env::set_var("RUST_LOG", "amqpconfd=debug"),
             _ => std::env::set_var("RUST_LOG", "amqpconfd=trace"),
         }
