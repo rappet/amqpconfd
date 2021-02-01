@@ -7,6 +7,7 @@ use tera::Tera;
 use tokio::fs::File;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::process::Command;
+use tokio::sync::Mutex;
 
 #[derive(Debug)]
 pub struct Templater {
@@ -14,6 +15,8 @@ pub struct Templater {
     output_file: PathBuf,
     /// command to run after appling config
     command: Option<String>,
+    /// lock to prevent multiple writers on config file
+    lock: Mutex<()>,
 }
 
 impl Templater {
@@ -22,6 +25,7 @@ impl Templater {
             template_path,
             output_file,
             command,
+            lock: Mutex::new(()),
         }
     }
 
@@ -36,6 +40,10 @@ impl Templater {
     pub async fn apply_json(&self, json: &Value) -> anyhow::Result<()> {
         // read template
         let mut template_raw = Vec::new();
+
+        // prevent multiple config writers and command execution
+        let _guard = self.lock.lock().await;
+
         File::open(&self.template_path)
             .await?
             .read_to_end(&mut template_raw)
